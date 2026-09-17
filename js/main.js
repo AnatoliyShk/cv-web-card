@@ -28,7 +28,6 @@ const { Engine, Render, Runner, Bodies, Body, World, Events, Mouse, MouseConstra
 
 const container = document.getElementById('physics-box');
 const W = container.offsetWidth;
-const H = container.offsetHeight;
 
 // The canvas can't inherit CSS, so pull the themed colours off the document and
 // refresh them whenever the theme flips (see setTheme -> 'themechange').
@@ -62,28 +61,6 @@ function brandColor(hex) {
     return toned;
 }
 
-const engine = Engine.create({ gravity: { x: 0, y: 1.1 } });
-
-const render = Render.create({
-    element: container,
-    engine: engine,
-    options: {
-        width: W,
-        height: H,
-        wireframes: false,
-        background: palette.bg
-    }
-});
-
-// Walls
-const walls = [
-    Bodies.rectangle(W/2, H+25, W, 50, { isStatic: true, render: { fillStyle: 'transparent' } }),
-    Bodies.rectangle(W/2, -25,  W, 50, { isStatic: true, render: { fillStyle: 'transparent' } }),
-    Bodies.rectangle(-25, H/2, 50, H,  { isStatic: true, render: { fillStyle: 'transparent' } }),
-    Bodies.rectangle(W+25, H/2, 50, H, { isStatic: true, render: { fillStyle: 'transparent' } }),
-];
-World.add(engine.world, walls);
-
 // Project tags — fa: Font Awesome glyph, faFont: 'brands' | 'solid', icon: fallback while the FA font loads
 const tags = [
     { label: 'JavaScript',  fa: '\uf3b8', faFont: 'brands', icon: '⚡', color: '#f7df1e', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript' },
@@ -114,14 +91,18 @@ const tags = [
 const offscreen = document.createElement('canvas');
 const octx = offscreen.getContext('2d');
 
-const LABEL_FONT = '500 13px "DM Sans", sans-serif';
-const ICON_SIZE  = 26;
-const ICON_TEXT  = 14;
-const GAP        = 10;
-const PADX       = 14;
-const PILL_H     = 42;
-const ROW_GAP    = 14;
-const COL_GAP    = 12;
+// Smaller pills on mobile keep the box from growing too tall once every row
+// has to stack in a much narrower column.
+const isMobileLayout = window.matchMedia('(max-width: 768px)').matches;
+
+const LABEL_FONT = isMobileLayout ? '500 11px "DM Sans", sans-serif' : '500 13px "DM Sans", sans-serif';
+const ICON_SIZE  = isMobileLayout ? 20 : 26;
+const ICON_TEXT  = isMobileLayout ? 12 : 14;
+const GAP        = isMobileLayout ? 8  : 10;
+const PADX       = isMobileLayout ? 10 : 14;
+const PILL_H     = isMobileLayout ? 34 : 42;
+const ROW_GAP    = isMobileLayout ? 10 : 14;
+const COL_GAP    = isMobileLayout ? 8  : 12;
 
 const FA_BRANDS_FONT = `400 ${ICON_TEXT}px "Font Awesome 6 Brands"`;
 const FA_SOLID_FONT  = `900 ${ICON_TEXT - 1}px "Font Awesome 6 Free"`;
@@ -142,7 +123,7 @@ tags.forEach(tag => {
 });
 
 // Lay out pills in rows, centered
-function computeGridPositions(tags, W, H) {
+function packRows(tags, W) {
     const rows = [];
     let row = [], rowW = 0;
     const maxW = W - 40;
@@ -156,7 +137,10 @@ function computeGridPositions(tags, W, H) {
         }
     });
     if (row.length) rows.push(row);
+    return rows;
+}
 
+function positionRows(rows, W, H) {
     const totalH = rows.length * PILL_H + (rows.length - 1) * ROW_GAP;
     const startY = (H - totalH) / 2;
     const positions = [];
@@ -176,7 +160,38 @@ function computeGridPositions(tags, W, H) {
     return positions;
 }
 
-const gridPositions = computeGridPositions(tags, W, H);
+const rows = packRows(tags, W);
+const contentH = rows.length * PILL_H + (rows.length - 1) * ROW_GAP;
+
+// The box's CSS height is a fixed guess; on narrow phones the pills need more
+// rows than that guess allows, so they'd be clipped top and bottom. Grow the
+// box (and canvas) to fit however many rows this viewport actually needs.
+const H = Math.max(container.offsetHeight, contentH + 40);
+container.style.height = H + 'px';
+
+const engine = Engine.create({ gravity: { x: 0, y: 1.1 } });
+
+const render = Render.create({
+    element: container,
+    engine: engine,
+    options: {
+        width: W,
+        height: H,
+        wireframes: false,
+        background: palette.bg
+    }
+});
+
+// Walls
+const walls = [
+    Bodies.rectangle(W/2, H+25, W, 50, { isStatic: true, render: { fillStyle: 'transparent' } }),
+    Bodies.rectangle(W/2, -25,  W, 50, { isStatic: true, render: { fillStyle: 'transparent' } }),
+    Bodies.rectangle(-25, H/2, 50, H,  { isStatic: true, render: { fillStyle: 'transparent' } }),
+    Bodies.rectangle(W+25, H/2, 50, H, { isStatic: true, render: { fillStyle: 'transparent' } }),
+];
+World.add(engine.world, walls);
+
+const gridPositions = positionRows(rows, W, H);
 
 // Create bodies as static at grid positions
 let physicsUnlocked = false;
@@ -296,8 +311,6 @@ function roundRect(ctx, x, y, w, h, r) {
 
 // Mouse (desktop only — Matter's touch handling calls preventDefault on
 // touchmove, which blocks finger-scrolling the page on mobile)
-const isMobileLayout = window.matchMedia('(max-width: 768px)').matches;
-
 if (!isMobileLayout) {
     const mouse = Mouse.create(render.canvas);
     const mc = MouseConstraint.create(engine, {
@@ -358,8 +371,16 @@ Runner.run(Runner.create(), engine);
 }
 
 function loadPreferences() {
-    const savedTheme = localStorage.getItem('portfolio-theme');
+    const savedTheme = readStored('portfolio-theme');
     if (savedTheme) AppState.currentTheme = savedTheme;
+}
+
+function readStored(key) {
+    try { return localStorage.getItem(key); } catch { return null; }
+}
+
+function writeStored(key, value) {
+    try { localStorage.setItem(key, value); } catch { /* storage unavailable */ }
 }
 
 function initTheme() {
@@ -373,7 +394,7 @@ function initTheme() {
 function toggleTheme() {
     const newTheme = AppState.currentTheme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    localStorage.setItem('portfolio-theme', newTheme);
+    writeStored('portfolio-theme', newTheme);
 }
 
 function setTheme(theme) {
@@ -636,9 +657,11 @@ function initHeroAnimations() {
     const heroName = document.getElementById('heroName');
     if (heroName) {
         const nameValue = heroName.querySelector('.name-value');
+        const namePunct = heroName.querySelector('.name-punct');
         if (nameValue) {
             const originalText = nameValue.textContent;
             nameValue.textContent = '';
+            if (namePunct) namePunct.style.visibility = 'hidden';
             anime({
                 targets: { value: 0 },
                 value: originalText.length,
@@ -650,6 +673,7 @@ function initHeroAnimations() {
                     nameValue.textContent = originalText.substring(0, length);
                 },
                 complete: () => {
+                    if (namePunct) namePunct.style.visibility = '';
                     const cursor = document.createElement('span');
                     cursor.className = 'name-cursor';
                     cursor.textContent = '|';
@@ -691,9 +715,7 @@ function initHeroAnimations() {
         anime({
             targets: socialIcons,
             opacity: [0, 1],
-            scale: [0, 1],
-            rotate: [180, 0],
-            delay: anime.stagger(100, {start: 2000}),
+            delay: anime.stagger(100, {start: 1400}),
             duration: 800,
             easing: 'easeOutBack'
         });

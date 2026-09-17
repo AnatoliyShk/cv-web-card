@@ -6,19 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Professional Portfolio - Developer CV</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-    <!-- Tailwind CSS (CDN for development only) -->
     <script src="js/main.js"></script>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/devicon@2.17.0/devicon.min.css">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Fira+Code:wght@300;400;500;600;700&family=Instrument+Serif&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/editorial.css">
 </head>
-<body  data-theme="dark" data-lang="en" data-dir="ltr">
+<body data-style="editorial" data-theme="dark" data-lang="en" data-dir="ltr">
     
 
     <!-- Navigation Header -->
@@ -36,14 +37,14 @@
                 <a href="#home" class="nav-link active" data-section="home">
                     <span  data-text-en="Home">Home</span>
                 </a>
+                <a href="#projects" class="nav-link" data-section="projects">
+                    <span data-text-en="Personal Projects">Personal Projects</span>
+                </a>
                 <a href="#skills" class="nav-link" data-section="skills">
                     <span data-text-en="Skills">Skills</span>
                 </a>
                 <a href="#experience" class="nav-link" data-section="experience">
                     <span  data-text-en="Experience">Experience</span>
-                </a>
-                <a href="#projects" class="nav-link" data-section="projects">
-                    <span data-text-en="Personal Projects">Personal Projects</span>
                 </a>
             </div>
             
@@ -78,7 +79,7 @@
                     </div>
                     
                     <h4 class="hero-name" id="heroName">
-                        <span class="name-value">Software Engineer;</span>
+                        <span class="name-value">Software Engineer</span><span class="name-punct">;</span>
                 
                     </h4>
                     
@@ -90,7 +91,7 @@
                         <a href="https://github.com/AnatoliyShk" class="social-icon" title="GitHub">
                             <i class="fab fa-github"></i>
                         </a>
-                        <a href="https://www.linkedin.com/in/anatolii-shekera-5575101b" class="social-icon" title="LinkedIn">
+                        <a href="https://www.linkedin.com/in/anatolii-shekera-5575101b7/" target="_blank" rel="noopener noreferrer" class="social-icon" title="LinkedIn">
                             <i class="fab fa-linkedin-in"></i>
                         </a>
                         <a href="https://leetcode.com/u/tolikshekera/" class="social-icon" title="Leetcode">
@@ -144,11 +145,121 @@
             </div>
         </section>
 
-        <!-- Skills Section -->
-        <section id="skills" class="section section-2">
+        <!-- Projects Section -->
+        <section id="projects" class="section section-2">
             <div class="section-container">
                 <div class="section-header">
                     <span class="section-number">01</span>
+                    <h2 class="section-title">
+                        <span class="title-bracket">&lt;</span>
+                        <span class="title-text" data-text-en="Personal Projects">Personal Projects</span>
+                        <span class="title-bracket">/&gt;</span>
+                    </h2>
+                    <div class="section-line"></div>
+                </div>
+
+                <div class="projects-grid">
+                    <article class="project-card">
+                        <div class="project-card-header">
+                            <div class="project-icon">
+                                <i class="fas fa-language"></i>
+                            </div>
+                            <div class="project-badge" data-text-en="Live">Live</div>
+                        </div>
+                        <h3 class="project-title" data-text-en="BalkanBuddy">BalkanBuddy</h3>
+                        <p class="project-description" data-text-en="A web and mobile app that helps foreigners learn Bulgarian and track their progress.">
+                            A web and mobile app that helps foreigners learn Bulgarian and track their progress.
+                        </p>
+                        <div class="timeline-achievements project-highlights">
+                            <div class="achievement-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-text-en="Many exercise types with spaced-repetition practice (FSRS)">Many exercise types with spaced-repetition practice (FSRS)</span>
+                            </div>
+                            <div class="achievement-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-text-en="Progress tracking with a stats dashboard">Progress tracking with a stats dashboard</span>
+                            </div>
+                            <div class="achievement-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-text-en="Semantic exercise search with embeddings and pgvector">Semantic exercise search with embeddings and pgvector</span>
+                            </div>
+                            <div class="achievement-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-text-en="Native iOS and Android builds from the same codebase">Native iOS and Android builds from the same codebase</span>
+                            </div>
+                        </div>
+                        <div class="project-tags">
+                            <span class="tag"><i class="devicon-php-plain" aria-hidden="true"></i>PHP</span>
+                            <span class="tag"><i class="devicon-laravel-plain" aria-hidden="true"></i>Laravel</span>
+                            <span class="tag"><i class="devicon-vuejs-plain" aria-hidden="true"></i>Vue.js</span>
+                            <span class="tag"><i class="devicon-typescript-plain" aria-hidden="true"></i>TypeScript</span>
+                            <span class="tag"><i class="devicon-postgresql-plain" aria-hidden="true"></i>PostgreSQL</span>
+                            <span class="tag"><i class="devicon-redis-plain" aria-hidden="true"></i>Redis</span>
+                            <span class="tag"><i class="devicon-docker-plain" aria-hidden="true"></i>Docker</span>
+                            <span class="tag"><i class="fas fa-mobile-screen-button" aria-hidden="true"></i>NativePHP</span>
+                            <span class="tag"><i class="fas fa-cloud" aria-hidden="true"></i>Laravel Cloud</span>
+                            <span class="tag"><i class="fas fa-vial" aria-hidden="true"></i>PHPUnit</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://balkanbuddy.laravel.cloud/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary project-link">
+                                <i class="fas fa-globe"></i>
+                                <span data-text-en="Live demo">Live demo</span>
+                            </a>
+                            <a href="https://github.com/AnatoliyShk/bulgolingo" target="_blank" rel="noopener noreferrer" class="btn btn-secondary project-link">
+                                <i class="fab fa-github"></i>
+                                <span data-text-en="Code">Code</span>
+                            </a>
+                        </div>
+                    </article>
+
+                    <article class="project-card">
+                        <div class="project-card-header">
+                            <div class="project-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="project-badge" data-text-en="In progress">In progress</div>
+                        </div>
+                        <h3 class="project-title" data-text-en="Lesson Planner">Lesson Planner</h3>
+                        <p class="project-description" data-text-en="A web app for planning and scheduling lessons with real teachers.">
+                            A web app for planning and scheduling lessons with real teachers.
+                        </p>
+                        <div class="timeline-achievements project-highlights">
+                            <div class="achievement-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-text-en="Lesson scheduling by teacher, time slot and status">Lesson scheduling by teacher, time slot and status</span>
+                            </div>
+                            <div class="achievement-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-text-en="User accounts with authentication">User accounts with authentication</span>
+                            </div>
+                            <div class="achievement-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-text-en="Dockerised setup, CI with PHPUnit and static analysis">Dockerised setup, CI with PHPUnit and static analysis</span>
+                            </div>
+                        </div>
+                        <div class="project-tags">
+                            <span class="tag"><i class="devicon-php-plain" aria-hidden="true"></i>PHP</span>
+                            <span class="tag"><i class="devicon-cakephp-plain" aria-hidden="true"></i>CakePHP</span>
+                            <span class="tag"><i class="devicon-mysql-plain" aria-hidden="true"></i>MySQL</span>
+                            <span class="tag"><i class="devicon-docker-plain" aria-hidden="true"></i>Docker</span>
+                            <span class="tag"><i class="fas fa-vial" aria-hidden="true"></i>PHPUnit</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/AnatoliyShk/lesson-planner" target="_blank" rel="noopener noreferrer" class="btn btn-secondary project-link">
+                                <i class="fab fa-github"></i>
+                                <span data-text-en="Code">Code</span>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="section section-5">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number">02</span>
                     <h2 class="section-title">
                         <span class="title-bracket">&lt;</span>
                         <span class="title-text" data-text-en="Skills">Skills</span>
@@ -168,8 +279,7 @@
                             <p class="skills-description">
                                 I'm a passionate Full Stack Developer with over 8 years of experience building
                                 modern web applications. I specialize in PHP with Laravel and Symfony, Python
-                                with Django, and JavaScript — building beautiful user interfaces with Vue.js
-                                and Angular.
+                                with Django, and JavaScript - building beautiful UI.
                             </p>
                         </div>
                     
@@ -196,7 +306,7 @@
         <section id="experience" class="section section-4">
             <div class="section-container">
                 <div class="section-header">
-                    <span class="section-number">02</span>
+                    <span class="section-number">03</span>
                     <h2 class="section-title">
                         <span class="title-bracket">&lt;</span>
                         <span class="title-text" data-text-en="Experience">Experience</span>
@@ -213,7 +323,7 @@
                                 <div class="timeline-year">2022 - Present</div>
                                 <div class="timeline-badge">Current</div>
                             </div>
-                            <h3 class="timeline-title" data-text-en="Senior Full Stack Developer">JS & PHP Software Engineer</h3>
+                            <h3 class="timeline-title" data-text-en="Senior Full Stack Software Engineer">Senior Full Stack Software Engineer</h3>
                             <div class="timeline-company">
                                 <i class="fas fa-building"></i>
                                 Beetroot
@@ -248,14 +358,13 @@
                                 </div>
                             </div>
                             <div class="timeline-tags">
-                                <span class="tag">PHP</span>
-                                <span class="tag">Laravel</span>
-                                <span class="tag">Vue.js</span>
-                                <span class="tag">Angular</span>
-                                <span class="tag">JavaScript</span>
-                                <span class="tag">Docker</span>
-                                <span class="tag">Redis</span>
-                                <span class="tag">AWS</span>
+                                <span class="tag"><i class="devicon-php-plain" aria-hidden="true"></i>PHP</span>
+                                <span class="tag"><i class="devicon-laravel-plain" aria-hidden="true"></i>Laravel</span>
+                                <span class="tag"><i class="devicon-vuejs-plain" aria-hidden="true"></i>Vue.js</span>
+                                <span class="tag"><i class="devicon-javascript-plain" aria-hidden="true"></i>JavaScript</span>
+                                <span class="tag"><i class="devicon-docker-plain" aria-hidden="true"></i>Docker</span>
+                                <span class="tag"><i class="devicon-redis-plain" aria-hidden="true"></i>Redis</span>
+                                <span class="tag"><i class="devicon-amazonwebservices-plain" aria-hidden="true"></i>AWS</span>
                             </div>
                         </div>
                     </div>
@@ -266,7 +375,7 @@
                             <div class="timeline-header">
                                 <div class="timeline-year">2020 - 2022</div>
                             </div>
-                            <h3 class="timeline-title" data-text-en="Frontend Developer">Python & JS Software Engineer</h3>
+                            <h3 class="timeline-title" data-text-en="Fullstack Software Engineer">Fullstack Software Engineer</h3>
                             <div class="timeline-company">
                                 <i class="fas fa-building"></i>
                                 Nexteum
@@ -293,22 +402,24 @@
                                 </div>
                             </div>
                             <div class="timeline-tags">
-                                <span class="tag">Python</span>
-                                <span class="tag">Django</span>
-                                <span class="tag">JavaScript</span>
-                                <span class="tag">Vue.js</span>
-                                <span class="tag">Docker</span>
+                                <span class="tag"><i class="devicon-php-plain" aria-hidden="true"></i>PHP</span>
+                                <span class="tag"><i class="devicon-laravel-plain" aria-hidden="true"></i>Laravel</span>
+                                <span class="tag"><i class="devicon-python-plain" aria-hidden="true"></i>Python</span>
+                                <span class="tag"><i class="devicon-django-plain" aria-hidden="true"></i>Django</span>
+                                <span class="tag"><i class="devicon-javascript-plain" aria-hidden="true"></i>JavaScript</span>
+                                <span class="tag"><i class="devicon-vuejs-plain" aria-hidden="true"></i>Vue.js</span>
+                                <span class="tag"><i class="devicon-docker-plain" aria-hidden="true"></i>Docker</span>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="timeline-item">
                         <div class="timeline-marker"></div>
                         <div class="timeline-content">
                             <div class="timeline-header">
                                 <div class="timeline-year">2018 - 2020</div>
                             </div>
-                            <h3 class="timeline-title" data-text-en="Junior Web Developer">PHP Software Engineer</h3>
+                            <h3 class="timeline-title" data-text-en="Junior Fullstack PHP Software Engineer">Junior Fullstack Software Engineer</h3>
                             <div class="timeline-company">
                                 <i class="fas fa-building"></i>
                                 D-novation
@@ -340,58 +451,17 @@
                                 </div>
                             </div>
                             <div class="timeline-tags">
-                                <span class="tag">PHP</span>
-                                <span class="tag">Symfony</span>
-                                <span class="tag">Docker</span>
-                                <span class="tag">RabbitMQ</span>
-                                <span class="tag">HTML</span>
-                                <span class="tag">CSS</span>
-                                <span class="tag">JavaScript</span>
-                                <span class="tag">jQuery</span>
-                                <span class="tag">Bootstrap</span>
+                                <span class="tag"><i class="devicon-php-plain" aria-hidden="true"></i>PHP</span>
+                                <span class="tag"><i class="devicon-symfony-plain" aria-hidden="true"></i>Symfony</span>
+                                <span class="tag"><i class="devicon-docker-plain" aria-hidden="true"></i>Docker</span>
+                                <span class="tag"><i class="devicon-rabbitmq-plain" aria-hidden="true"></i>RabbitMQ</span>
+                                <span class="tag"><i class="devicon-html5-plain" aria-hidden="true"></i>HTML</span>
+                                <span class="tag"><i class="devicon-css3-plain" aria-hidden="true"></i>CSS</span>
+                                <span class="tag"><i class="devicon-javascript-plain" aria-hidden="true"></i>JavaScript</span>
+                                <span class="tag"><i class="devicon-jquery-plain" aria-hidden="true"></i>jQuery</span>
+                                <span class="tag"><i class="devicon-bootstrap-plain" aria-hidden="true"></i>Bootstrap</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Projects Section -->
-        <section id="projects" class="section section-5">
-            <div class="section-container">
-                <div class="section-header">
-                    <span class="section-number">03</span>
-                    <h2 class="section-title">
-                        <span class="title-bracket">&lt;</span>
-                        <span class="title-text" data-text-en="Personal Projects">Personal Projects</span>
-                        <span class="title-bracket">/&gt;</span>
-                    </h2>
-                    <div class="section-line"></div>
-                </div>
-
-                <div class="projects-grid">
-                    <div class="project-card">
-                        <div class="project-card-header">
-                            <div class="project-icon">
-                                <i class="fas fa-rocket"></i>
-                            </div>
-                            <div class="project-badge" data-text-en="Live">Live</div>
-                        </div>
-                        <h3 class="project-title" data-text-en="BalkanBuddy">BalkanBuddy</h3>
-                        <p class="project-description" data-text-en="A personal project built and deployed independently, exploring Laravel Cloud for hosting and deployment.">
-                            A personal project built and deployed independently, exploring Laravel Cloud for hosting and deployment.
-                        </p>
-                        <div class="project-tags">
-                            <span class="tag">PHP</span>
-                            <span class="tag">Laravel</span>
-                            <span class="tag">Vue.js</span>
-                            <span class="tag">PostgreSQL</span>
-                            <span class="tag">Redis</span>
-                            <span class="tag">Laravel Cloud</span>
-                        </div>
-                        <a href="https://balkanbuddy.laravel.cloud/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary project-link">
-                            <span data-text-en="View Personal Project">View Personal Project</span>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -419,6 +489,16 @@
                             <div class="contact-details">
                                 <h4 class="contact-label" data-text-en="Email">Email</h4>
                                 <a href="mailto:tolikshekera@gmail.com" class="contact-value">tolikshekera@gmail.com</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fab fa-linkedin-in"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4 class="contact-label" data-text-en="LinkedIn">LinkedIn</h4>
+                                <a href="https://www.linkedin.com/in/anatolii-shekera-5575101b7/" target="_blank" rel="noopener noreferrer" class="contact-value contact-value--linkedin">linkedin.com/in/anatolii-shekera</a>
                             </div>
                         </div>
                         
