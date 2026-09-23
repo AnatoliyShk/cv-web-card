@@ -404,9 +404,16 @@ body[data-style="editorial"][data-theme="dark"] {
     display: none;
 }
 
+/* An empty flex item's baseline is its bottom edge, so the dot sits on the
+   text baseline; lift it to the middle of the lowercase letters. */
 [data-style="editorial"] .achievement-item::before {
-    content: '—';
-    color: var(--text-muted);
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.18);
+    transform: translateY(-0.15em);
     flex-shrink: 0;
 }
 
