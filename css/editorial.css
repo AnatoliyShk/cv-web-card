@@ -443,6 +443,16 @@ body[data-style="editorial"][data-theme="dark"] {
     box-shadow: none;
 }
 
+[data-style="editorial"] .project-card-compact {
+    max-width: 640px;
+    margin-inline: auto;
+    padding-top: 1rem;
+}
+
+[data-style="editorial"] .project-card-compact .project-title {
+    font-size: 1.35rem;
+}
+
 [data-style="editorial"] .project-icon {
     display: none;
 }

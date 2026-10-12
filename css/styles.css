@@ -1107,6 +1107,44 @@ img {
     margin-top: auto;
 }
 
+.project-card-compact {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1rem 1.5rem;
+    padding: 1.25rem 1.5rem;
+    margin-top: 2rem;
+}
+
+.project-compact-body {
+    flex: 0 1 460px;
+}
+
+.project-card-compact .project-title {
+    font-size: 1.15rem;
+    margin-bottom: 0.25rem;
+}
+
+.project-card-compact .project-description,
+.project-card-compact .project-tags {
+    margin-bottom: 0;
+}
+
+.project-card-compact .project-description {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.project-card-compact .project-tags {
+    justify-content: center;
+}
+
+.project-card-compact .project-links {
+    margin-top: 0;
+}
+
 .contact-content {
     display: grid;
     grid-template-columns: 1fr;
