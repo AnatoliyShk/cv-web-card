@@ -106,23 +106,12 @@ body[data-style="editorial"][data-theme="dark"] {
 /* ---------- Hero ---------- */
 
 [data-style="editorial"] .section-1 {
-    position: relative;
-    height: auto;
     min-height: 88vh;
 }
 
 [data-style="editorial"] .hero-section {
     padding: 6rem 0 5rem;
     align-items: center;
-}
-
-[data-style="editorial"] .hero-background,
-[data-style="editorial"] .hero-image-wrapper,
-[data-style="editorial"] .scroll-indicator,
-[data-style="editorial"] .greeting-cursor,
-[data-style="editorial"] .name-cursor,
-[data-style="editorial"] .name-punct {
-    display: none;
 }
 
 [data-style="editorial"] .hero-container {
@@ -177,6 +166,184 @@ body[data-style="editorial"][data-theme="dark"] {
 [data-style="editorial"] .hero-social {
     gap: 0.75rem;
     justify-content: flex-start;
+}
+
+/* PORTFOLIO keycaps: 13 half-key columns so the bottom row sits offset like a real keyboard. */
+[data-style="editorial"] .hero-keyboard {
+    --k: clamp(1.6rem, 4.2vw, 3.4rem);
+    display: grid;
+    grid-template-columns: repeat(13, var(--k));
+    grid-auto-rows: calc(var(--k) * 2.25);
+    gap: calc(var(--k) * 0.34) calc(var(--k) * 0.18);
+    justify-content: end;
+    margin-top: 3rem;
+    padding-bottom: calc(var(--k) * 0.2);
+}
+
+/* Keychron-style cap: the key itself is the darker skirt, ::before is the
+   lighter, slightly dished top face, and the hard shadow is the cap's height. */
+[data-style="editorial"] .hero-keyboard .key {
+    --face: var(--bg-card);
+    --side: color-mix(in srgb, var(--face) 82%, #000);
+    --lift: calc(var(--k) * 0.18);
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: calc(var(--k) * 0.2) calc(var(--k) * 0.3) calc(var(--k) * 0.5);
+    background: var(--side);
+    border: 1px solid color-mix(in srgb, var(--side) 85%, #000);
+    border-radius: calc(var(--k) * 0.26);
+    box-shadow:
+        0 var(--lift) 0 color-mix(in srgb, var(--side) 75%, #000),
+        0 calc(var(--lift) + 4px) 14px rgba(0, 0, 0, 0.28);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, color 0.1s ease;
+}
+
+[data-style="editorial"] .hero-keyboard .key::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--k) * 0.05) calc(var(--k) * 0.14) calc(var(--k) * 0.34);
+    z-index: -1;
+    border-radius: calc(var(--k) * 0.2);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--face) 90%, #fff), var(--face));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 calc(var(--k) * -0.06) calc(var(--k) * 0.1) rgba(0, 0, 0, 0.08),
+        0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+[data-style="editorial"][data-theme="dark"] .hero-keyboard .key {
+    --face: #2a2b31;
+}
+
+[data-style="editorial"] .hero-keyboard .key b {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: calc(var(--k) * 0.95);
+    line-height: 1;
+}
+
+[data-style="editorial"] .hero-keyboard .key small {
+    font-family: var(--font-code);
+    font-size: clamp(0.45rem, 0.75vw, 0.62rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    line-height: 1.2;
+}
+
+/* Pressing sinks the cap: it moves down by most of its height. */
+[data-style="editorial"] .hero-keyboard .key:hover,
+[data-style="editorial"] .hero-keyboard .key:focus-visible,
+[data-style="editorial"] .hero-keyboard .key.is-pressed {
+    transform: translateY(calc(var(--lift) * 0.65));
+    box-shadow:
+        0 calc(var(--lift) * 0.35) 0 color-mix(in srgb, var(--side) 75%, #000),
+        0 calc(var(--lift) * 0.35 + 2px) 6px rgba(0, 0, 0, 0.25);
+    color: var(--primary);
+}
+
+[data-style="editorial"] .hero-keyboard .key-enter,
+[data-style="editorial"][data-theme="dark"] .hero-keyboard .key-enter {
+    --face: var(--primary);
+    color: var(--primary-contrast);
+}
+
+[data-style="editorial"] .hero-keyboard .key-enter small,
+[data-style="editorial"] .hero-keyboard .key-enter:hover,
+[data-style="editorial"] .hero-keyboard .key-enter:focus-visible,
+[data-style="editorial"] .hero-keyboard .key-enter.is-pressed {
+    color: var(--primary-contrast);
+}
+
+@media (max-width: 768px) {
+    [data-style="editorial"] .hero-keyboard {
+        --k: calc((100vw - 2rem) / 15.2); /* 13 columns + 12 gaps of 0.18k */
+    }
+
+    /* Taller keys and a tiny caption so the labels still fit on narrow screens. */
+    [data-style="editorial"] .hero-keyboard {
+        grid-auto-rows: calc(var(--k) * 2.2); /* about square, like a real cap */
+    }
+
+    [data-style="editorial"] .hero-keyboard .key {
+        padding: calc(var(--k) * 0.12) calc(var(--k) * 0.14) calc(var(--k) * 0.4);
+    }
+
+    [data-style="editorial"] .hero-keyboard .key::before {
+        inset: calc(var(--k) * 0.05) calc(var(--k) * 0.08) calc(var(--k) * 0.34);
+    }
+
+    [data-style="editorial"] .hero-keyboard .key b {
+        font-size: calc(var(--k) * 0.75);
+    }
+
+    [data-style="editorial"] .hero-keyboard .key small {
+        font-size: 0.42rem;
+        letter-spacing: 0;
+        line-height: 1.1;
+        overflow-wrap: anywhere;
+    }
+}
+
+/* Leave-site confirmation (native <dialog>) */
+[data-style="editorial"] .leave-dialog {
+    width: min(420px, calc(100vw - 2rem));
+    margin: auto; /* the global reset zeroes the native centering */
+    padding: 2rem;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+[data-style="editorial"] .leave-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+[data-style="editorial"] .leave-dialog h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+}
+
+[data-style="editorial"] .leave-dialog p {
+    color: var(--text-secondary);
+    margin-bottom: 1.75rem;
+    overflow-wrap: anywhere;
+}
+
+[data-style="editorial"] .leave-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+[data-style="editorial"] .leave-actions button {
+    font: 500 0.95rem var(--font-primary);
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+[data-style="editorial"] .leave-actions .leave-go {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--primary-contrast);
+}
+
+[data-style="editorial"] .leave-actions button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
 }
 
 [data-style="editorial"] .social-icon {

@@ -1,8 +1,8 @@
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 const AppState = {
     currentTheme: 'dark',
-    currentSection: 'home',
     isMenuOpen: false,
-    isLoaded: false,
     isAutoScrolling: false
 };
 
@@ -16,17 +16,35 @@ function initializeApp() {
     initNavigation();
     initMobileMenu();
     updateThemeUI();
+    initHeroKeyboard();
+    initLeaveConfirm();
     drawInteractiveBox();
-    AppState.isLoaded = true;
-
+    initPageAnimations();
 }
 
 function drawInteractiveBox() {
    window.addEventListener('load', () => {
 
-const { Engine, Render, Runner, Bodies, Body, World, Events, Mouse, MouseConstraint } = Matter;
+const { Engine, Render, Runner, Bodies, Body, World, Events, Mouse, MouseConstraint, Query } = Matter;
 
 const container = document.getElementById('physics-box');
+
+// Rotation or window resize changes the box width; the world is sized once, so rebuild it.
+let teardown = build();
+let builtW = container.offsetWidth;
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        if (container.offsetWidth === builtW) return;
+        teardown();
+        teardown = build();
+        builtW = container.offsetWidth;
+    }, 200);
+});
+
+function build() {
+const listeners = new AbortController();
 const W = container.offsetWidth;
 
 // The canvas can't inherit CSS, so pull the themed colours off the document and
@@ -70,7 +88,7 @@ const tags = [
     { label: 'Angular',     fa: '\uf420', faFont: 'brands', icon: 'A',  color: '#dd1b16', url: 'https://angular.io' },
     { label: 'Laravel',     fa: '\uf3bd', faFont: 'brands', icon: 'L',  color: '#ff2d20', url: 'https://laravel.com' },
     { label: 'Symfony',     fa: '\uf83c', faFont: 'brands', icon: 'S',  color: '#000000', url: 'https://symfony.com' },
-    { label: 'Xdebug',     fa: '\uf1c2', faFont: 'brands', icon: 'X',  color: '#000000', url: 'https://xdebug.org' },
+    { label: 'Xdebug',     fa: '\uf188', faFont: 'solid',  icon: 'X',  color: '#000000', url: 'https://xdebug.org' },
     { label: 'PostgreSQL', fa: '\uf1c0', faFont: 'solid',  icon: '🗄', color: '#336791', url: 'https://www.postgresql.org' },
     { label: 'ClickHouse',  fa: '\uf1c0', faFont: 'solid',  icon: '🗄', color: '#ffcc00', url: 'https://clickhouse.com' },
     { label: 'Elasticsearch', fa: '\uf002', faFont: 'solid', icon: '🔍', color: '#00bfb3', url: 'https://www.elastic.co' },
@@ -85,10 +103,10 @@ const tags = [
     { label: 'HTML',        fa: '\uf13b', faFont: 'brands', icon: '🌐', color: '#e34f26', url: 'https://developer.mozilla.org/en-US/docs/Web/HTML' },
     { label: 'CSS',         fa: '\uf38b', faFont: 'brands', icon: '🎨', color: '#2965f1', url: 'https://developer.mozilla.org/en-US/docs/Web/CSS' },
     { label: 'Sass',        fa: '\uf41e', faFont: 'brands', icon: '💅', color: '#cd6799', url: 'https://sass-lang.com' },
-    { label: 'Docker',     fa: '\uf1c2', faFont: 'brands', icon: '🐳', color: '#2496ed', url: 'https://www.docker.com' },
+    { label: 'Docker',     fa: '\uf395', faFont: 'brands', icon: '🐳', color: '#2496ed', url: 'https://www.docker.com' },
     { label: 'yarn',        fa: '\uf7e3', faFont: 'brands', icon: '📦', color: '#2c8ebb', url: 'https://yarnpkg.com' },
     { label: 'npm',         fa: '\uf3d4', faFont: 'brands', icon: '📦', color: '#cb3837', url: 'https://npmjs.com' },
-    { label: 'Claude Code', fa: '\uf7e3', faFont: 'brands', icon: '📦', color: '#2c8ebb', url: 'https://claude.ai' }
+    { label: 'Claude Code', fa: '\uf121', faFont: 'solid',  icon: '</>', color: '#d97757', url: 'https://claude.ai' }
 ];
 
 // Measure text
@@ -99,7 +117,7 @@ const octx = offscreen.getContext('2d');
 // has to stack in a much narrower column.
 const isMobileLayout = window.matchMedia('(max-width: 768px)').matches;
 
-const LABEL_FONT = isMobileLayout ? '500 11px "DM Sans", sans-serif' : '500 13px "DM Sans", sans-serif';
+const LABEL_FONT = isMobileLayout ? '500 11px "Inter", sans-serif' : '500 13px "Inter", sans-serif';
 const ICON_SIZE  = isMobileLayout ? 20 : 26;
 const ICON_TEXT  = isMobileLayout ? 12 : 14;
 const GAP        = isMobileLayout ? 8  : 10;
@@ -217,7 +235,7 @@ World.add(engine.world, bodies);
 
 // Unlock physics on first mouse enter
 container.addEventListener('mouseenter', () => {
-    if (physicsUnlocked) return;
+    if (physicsUnlocked || reducedMotion) return;
     physicsUnlocked = true;
     bodies.forEach(body => {
         Body.setStatic(body, false);
@@ -226,13 +244,13 @@ container.addEventListener('mouseenter', () => {
             y: -Math.random() * 0.02
         });
     });
-});
+}, { signal: listeners.signal });
 
 document.addEventListener('themechange', () => {
     palette = readPalette();
     toneCache.clear();
     render.options.background = palette.bg;
-});
+}, { signal: listeners.signal });
 
 // Custom rendering
 Events.on(render, 'afterRender', () => {
@@ -317,6 +335,9 @@ function roundRect(ctx, x, y, w, h, r) {
 // touchmove, which blocks finger-scrolling the page on mobile)
 if (!isMobileLayout) {
     const mouse = Mouse.create(render.canvas);
+    // Matter cancels wheel events (for zoom); give the wheel back to page scrolling.
+    mouse.element.removeEventListener('mousewheel', mouse.mousewheel);
+    mouse.element.removeEventListener('DOMMouseScroll', mouse.mousewheel);
     const mc = MouseConstraint.create(engine, {
         mouse,
         constraint: { stiffness: 0.2, render: { visible: false } }
@@ -325,40 +346,30 @@ if (!isMobileLayout) {
 }
 
 // Click to open URL
-let mouseHasMoved = false;
-render.canvas.addEventListener("mousedown", () => { mouseHasMoved = false; });
-render.canvas.addEventListener("mousemove", () => { mouseHasMoved = true; });
+// A press that travels more than a few pixels is a drag, not a click.
+let downAt = null;
+render.canvas.addEventListener("mousedown", (e) => { downAt = { x: e.clientX, y: e.clientY }; });
 render.canvas.addEventListener("mouseup", (e) => {
-    if (mouseHasMoved) return;
-    const rect = render.canvas.getBoundingClientRect();
-    const mx   = e.clientX - rect.left;
-    const my   = e.clientY - rect.top;
-    bodies.forEach(body => {
-        const { x, y } = body.position;
-        const { w, h } = body.tag;
-        // Rough AABB hit (ignores rotation for simplicity)
-        if (body.tag.url && mx >= x - w/2 && mx <= x + w/2 && my >= y - h/2 && my <= y + h/2) {
-            window.open(body.tag.url, "_blank");
-        }
-    });
+    if (!downAt || Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 5) return;
+    const hit = pillAt(e);
+    if (hit) confirmLeave(hit.tag.url, true);
 });
 
 // Cursor pointer on hover
 render.canvas.addEventListener("mousemove", (e) => {
-    const rect = render.canvas.getBoundingClientRect();
-    const mx   = e.clientX - rect.left;
-    const my   = e.clientY - rect.top;
-    const hit  = bodies.some(body => {
-        const { x, y } = body.position;
-        const { w, h }  = body.tag;
-        return mx >= x - w/2 && mx <= x + w/2 && my >= y - h/2 && my <= y + h/2;
-    });
-    render.canvas.style.cursor = hit ? "pointer" : "default";
+    render.canvas.style.cursor = pillAt(e) ? "pointer" : "default";
 });
+
+// Exact (rotation-aware) hit test; the topmost pill only.
+function pillAt(e) {
+    const rect = render.canvas.getBoundingClientRect();
+    return Query.point(bodies, { x: e.clientX - rect.left, y: e.clientY - rect.top }).pop();
+}
 
 // Scroll shake
 let lastY = window.scrollY;
 window.addEventListener('scroll', () => {
+    if (reducedMotion) return;
     const delta = window.scrollY - lastY;
     lastY = window.scrollY;
     bodies.forEach(body => {
@@ -367,10 +378,32 @@ window.addEventListener('scroll', () => {
             y: delta * -0.003
         });
     });
-});
+}, { signal: listeners.signal });
 
-Render.run(render);
-Runner.run(Runner.create(), engine);
+const runner = Runner.create();
+
+// Only simulate and draw while the box is on screen; saves CPU and battery.
+const visibility = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
+        Render.run(render);
+        Runner.run(runner, engine);
+    } else {
+        Render.stop(render);
+        Runner.stop(runner);
+    }
+});
+visibility.observe(container);
+
+return () => {
+    visibility.disconnect();
+    listeners.abort();
+    Render.stop(render);
+    Runner.stop(runner);
+    Engine.clear(engine);
+    render.canvas.remove();
+    container.style.height = '';
+};
+}
    });
 }
 
@@ -385,6 +418,71 @@ function readStored(key) {
 
 function writeStored(key, value) {
     try { localStorage.setItem(key, value); } catch { /* storage unavailable */ }
+}
+
+// Real keyboard presses the matching keycap; repeated letters (the three O's) cycle.
+function initHeroKeyboard() {
+    const board = document.querySelector('.hero-keyboard');
+    if (!board) return;
+    const keys = board.querySelectorAll('.key');
+    const next = {};
+    let visible = false;
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(board);
+
+    // Idle "typing": every 2s press four random caps with uneven gaps (animation only, no navigation).
+    if (!reducedMotion) {
+        const tap = () => {
+            const key = keys[Math.floor(Math.random() * keys.length)];
+            key.classList.add('is-pressed');
+            setTimeout(() => key.classList.remove('is-pressed'), 150);
+        };
+        setInterval(() => {
+            if (!visible || document.hidden) return;
+            let at = 0;
+            for (let i = 0; i < 4; i++) {
+                setTimeout(tap, at);
+                at += 160 + Math.random() * 200; // 160–360ms, so it feels typed, not metronomic
+            }
+        }, 2000);
+    }
+    document.addEventListener('keydown', (e) => {
+        if (!visible || e.repeat || e.ctrlKey || e.metaKey || e.altKey || e.target.closest('input, textarea, select, [contenteditable]')) return;
+        if (e.key === 'Enter' && e.target.closest('a, button')) return; // keep native Enter on focused controls
+        if (document.querySelector('dialog[open]')) return;
+        const name = e.key.length === 1 ? e.key.toUpperCase() : e.key;
+        const matches = [...keys].filter(k => (k.dataset.key || k.querySelector('b').textContent) === name);
+        if (!matches.length) return;
+        e.preventDefault();
+        const key = matches[(next[name] = ((next[name] ?? -1) + 1) % matches.length)];
+        key.classList.add('is-pressed');
+        setTimeout(() => { key.classList.remove('is-pressed'); key.click(); }, 150);
+    });
+}
+
+// Links to other sites (and the skill pills) ask before leaving.
+function initLeaveConfirm() {
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a[href]');
+        if (!link || !/^https?:$/.test(link.protocol) || link.host === location.host) return;
+        e.preventDefault();
+        confirmLeave(link.href, link.target === '_blank');
+    });
+}
+
+function confirmLeave(url, newTab) {
+    const dialog = document.getElementById('leaveDialog');
+    if (dialog?.open) return;
+    if (!dialog || !dialog.showModal) {
+        if (newTab) window.open(url, '_blank', 'noopener'); else location.href = url;
+        return;
+    }
+    document.getElementById('leaveHost').textContent = new URL(url).host;
+    dialog.returnValue = '';
+    dialog.addEventListener('close', () => {
+        if (dialog.returnValue !== 'go') return;
+        if (newTab) window.open(url, '_blank', 'noopener'); else location.href = url;
+    }, { once: true });
+    dialog.showModal();
 }
 
 function initTheme() {
@@ -434,7 +532,6 @@ function initNavigation() {
                 // scroll spy would otherwise light up every section we travel
                 // past on the way down.
                 updateActiveNavLink(link);
-                AppState.currentSection = targetSection.getAttribute('id');
                 AppState.isAutoScrolling = true;
 
                 if (typeof anime !== 'undefined') {
@@ -480,19 +577,8 @@ function releaseAutoScroll(delay = 0) {
     }, delay);
 }
 
-// The hero is position:sticky (.section-1), so its offsetTop and bounding rect
-// report where it is *stuck* — a value that tracks the scroll position instead
-// of the section's place in the document. Measure it unstuck. Sticky elements
-// reserve their normal flow space, so this doesn't reflow anything around it.
 function flowTop(section) {
-    if (getComputedStyle(section).position !== 'sticky') {
-        return section.getBoundingClientRect().top + window.scrollY;
-    }
-    const original = section.style.position;
-    section.style.position = 'static';
-    const top = section.getBoundingClientRect().top + window.scrollY;
-    section.style.position = original;
-    return top;
+    return section.getBoundingClientRect().top + window.scrollY;
 }
 
 let sectionMetrics = null;
@@ -519,7 +605,6 @@ function handleScroll() {
 
     getSectionMetrics().forEach(({ id, top, height }) => {
         if (scrollPosition >= top && scrollPosition < top + height) {
-            AppState.currentSection = id;
             updateActiveNavLink(null, id);
         }
     });
@@ -581,27 +666,6 @@ function toggleMobileMenu() {
     }
 }
 
-function generateParticles() {
-    const particlesContainer = document.getElementById('particles');
-    if (!particlesContainer) return;
-
-    const codeSymbols = ['{', '}', '[', ']', '(', ')', '<', '>', '/', '*', '=', '+', '-', ';', ':', '&', '|', '%', '$', '#', '@'];
-    const particleCount = 20;
-
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.textContent = codeSymbols[Math.floor(Math.random() * codeSymbols.length)];
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 15 + 's';
-        particle.style.animationDuration = (10 + Math.random() * 10) + 's';
-        particlesContainer.appendChild(particle);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    generateParticles();
-});
 
 
 
@@ -611,48 +675,19 @@ function inView(element, callback, options = {}) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 callback(entry);
-                if (options.once !== false) {
-                    observer.unobserve(entry.target);
-                }
+                observer.unobserve(entry.target);
             }
         });
-    }, {
-        threshold: options.amount || 0.1,
-        rootMargin: options.rootMargin || '0px'
-    });
+    }, { threshold: options.amount || 0.1 });
     observer.observe(element);
-    return () => observer.unobserve(element);
 }
-
-function animateElement(element, props, options = {}) {
-    if (typeof anime === 'undefined') return;
-    const animeProps = {};
-    if (props.opacity) animeProps.opacity = props.opacity;
-    if (props.x !== undefined) animeProps.translateX = props.x;
-    if (props.y !== undefined) animeProps.translateY = props.y;
-    if (props.scale) animeProps.scale = props.scale;
-    return anime({
-        targets: element,
-        ...animeProps,
-        duration: (options.duration || 0.8) * 1000,
-        delay: (options.delay || 0) * 1000,
-        easing: options.easing || 'easeOutExpo'
-    });
-}
-
-window.addEventListener('load', () => {
-
-        initPageAnimations();
-
-});
 
 function initPageAnimations() {
-    setTimeout(() => {
-        initHeroAnimations();
-        initTimelineAnimations();
-        initScrollAnimations();
-        initContactAnimations();
-    }, 300);
+    if (reducedMotion) return;
+    initHeroAnimations();
+    initTimelineAnimations();
+    initScrollAnimations();
+    initContactAnimations();
 }
 
 function initHeroAnimations() {
@@ -661,11 +696,9 @@ function initHeroAnimations() {
     const heroName = document.getElementById('heroName');
     if (heroName) {
         const nameValue = heroName.querySelector('.name-value');
-        const namePunct = heroName.querySelector('.name-punct');
         if (nameValue) {
             const originalText = nameValue.textContent;
             nameValue.textContent = '';
-            if (namePunct) namePunct.style.visibility = 'hidden';
             anime({
                 targets: { value: 0 },
                 value: originalText.length,
@@ -676,15 +709,8 @@ function initHeroAnimations() {
                     const length = Math.floor(anim.animatables[0].target.value);
                     nameValue.textContent = originalText.substring(0, length);
                 },
-                complete: () => {
-                    if (namePunct) namePunct.style.visibility = '';
-                    const cursor = document.createElement('span');
-                    cursor.className = 'name-cursor';
-                    cursor.textContent = '|';
-                    cursor.style.animation = 'blink 1s infinite';
-                    nameValue.appendChild(cursor);
-                    setTimeout(() => cursor.remove(), 2000);
-                }
+                // the last update can land just short of the full length, dropping the final letter
+                complete: () => { nameValue.textContent = originalText; }
             });
         }
     }
@@ -702,17 +728,6 @@ function initHeroAnimations() {
         });
     }
 
-    const heroButtons = document.querySelectorAll('.hero-buttons .btn');
-    if (heroButtons.length > 0) {
-        anime({
-            targets: heroButtons,
-            opacity: [0, 1],
-            scale: [0.8, 1],
-            delay: anime.stagger(100, {start: 1500}),
-            duration: 800,
-            easing: 'easeOutBack'
-        });
-    }
 
     const socialIcons = document.querySelectorAll('.hero-social .social-icon');
     if (socialIcons.length > 0) {
@@ -725,52 +740,6 @@ function initHeroAnimations() {
         });
     }
 
-    const profileImage = document.getElementById('profileImage');
-    if (profileImage) {
-        anime({
-            targets: profileImage,
-            opacity: [0, 1],
-            scale: [0.8, 1],
-            rotate: [180, 0],
-            delay: 1000,
-            duration: 1500,
-            easing: 'easeOutElastic(1, .8)'
-        });
-
-        profileImage.addEventListener('mouseenter', () => {
-            anime({
-                targets: profileImage,
-                scale: [1, 1.1],
-                rotate: [0, 5],
-                duration: 500,
-                easing: 'easeOutElastic(1, .8)'
-            });
-        });
-
-        profileImage.addEventListener('mouseleave', () => {
-            anime({
-                targets: profileImage,
-                scale: [1.1, 1],
-                rotate: [5, 0],
-                duration: 500,
-                easing: 'easeOutElastic(1, .8)'
-            });
-        });
-    }
-
-    const badges = document.querySelectorAll('.floating-badge');
-    if (badges.length > 0) {
-        badges.forEach((badge, index) => {
-            anime({
-                targets: badge,
-                opacity: [0, 1],
-                scale: [0, 1],
-                delay: 1500 + (index * 200),
-                duration: 800,
-                easing: 'easeOutBack'
-            });
-        });
-    }
 }
 
 function initTimelineAnimations() {
@@ -786,8 +755,6 @@ function initTimelineAnimations() {
                     duration: 1000,
                     easing: 'easeOutExpo'
                 });
-            } else {
-                animateElement(item, { opacity: [0, 1], x: [-50, 0] }, { duration: 0.8, delay: index * 0.1 });
             }
         }, { amount: 0.3 });
     });
@@ -822,8 +789,6 @@ function initScrollAnimations() {
                     duration: 500,
                     easing: 'easeOutExpo'
                 });
-            } else {
-                animateElement(card, { opacity: [0, 1], y: [50, 0] }, { duration: 0.6, delay: index * 0.05 });
             }
         }, { amount: 0.2 });
     });
